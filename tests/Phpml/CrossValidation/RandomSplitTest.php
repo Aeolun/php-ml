@@ -34,13 +34,13 @@ class RandomSplitTest extends \PHPUnit_Framework_TestCase
 
         $randomSplit = new RandomSplit($dataset, 0.5);
 
-        $this->assertCount(2, $randomSplit->getTestSamples());
-        $this->assertCount(2, $randomSplit->getTrainSamples());
+        $this->assertCount(2, iterator_to_array($randomSplit->getTestTuples()));
+        $this->assertCount(2, iterator_to_array($randomSplit->getTrainTuples()));
 
         $randomSplit2 = new RandomSplit($dataset, 0.25);
 
-        $this->assertCount(1, $randomSplit2->getTestSamples());
-        $this->assertCount(3, $randomSplit2->getTrainSamples());
+        $this->assertCount(1, iterator_to_array($randomSplit2->getTestTuples()));
+        $this->assertCount(3, iterator_to_array($randomSplit2->getTrainTuples()));
     }
 
     public function testDatasetRandomSplitWithSameSeed()
@@ -55,10 +55,8 @@ class RandomSplitTest extends \PHPUnit_Framework_TestCase
         $randomSplit1 = new RandomSplit($dataset, 0.5, $seed);
         $randomSplit2 = new RandomSplit($dataset, 0.5, $seed);
 
-        $this->assertEquals($randomSplit1->getTestLabels(), $randomSplit2->getTestLabels());
-        $this->assertEquals($randomSplit1->getTestSamples(), $randomSplit2->getTestSamples());
-        $this->assertEquals($randomSplit1->getTrainLabels(), $randomSplit2->getTrainLabels());
-        $this->assertEquals($randomSplit1->getTrainSamples(), $randomSplit2->getTrainSamples());
+        $this->assertEquals($randomSplit1->getTestTuples(), $randomSplit2->getTestTuples());
+        $this->assertEquals($randomSplit1->getTrainTuples(), $randomSplit2->getTrainTuples());
     }
 
     public function testDatasetRandomSplitWithDifferentSeed()
@@ -71,10 +69,8 @@ class RandomSplitTest extends \PHPUnit_Framework_TestCase
         $randomSplit1 = new RandomSplit($dataset, 0.5, 4321);
         $randomSplit2 = new RandomSplit($dataset, 0.5, 1234);
 
-        $this->assertNotEquals($randomSplit1->getTestLabels(), $randomSplit2->getTestLabels());
-        $this->assertNotEquals($randomSplit1->getTestSamples(), $randomSplit2->getTestSamples());
-        $this->assertNotEquals($randomSplit1->getTrainLabels(), $randomSplit2->getTrainLabels());
-        $this->assertNotEquals($randomSplit1->getTrainSamples(), $randomSplit2->getTrainSamples());
+        $this->assertNotEquals($randomSplit1->getTestTuples(), $randomSplit2->getTestTuples());
+        $this->assertNotEquals($randomSplit1->getTrainTuples(), $randomSplit2->getTrainTuples());
     }
 
     public function testRandomSplitCorrectSampleAndLabelPosition()
@@ -86,9 +82,7 @@ class RandomSplitTest extends \PHPUnit_Framework_TestCase
 
         $randomSplit = new RandomSplit($dataset, 0.5);
 
-        $this->assertEquals($randomSplit->getTestSamples()[0][0], $randomSplit->getTestLabels()[0]);
-        $this->assertEquals($randomSplit->getTestSamples()[1][0], $randomSplit->getTestLabels()[1]);
-        $this->assertEquals($randomSplit->getTrainSamples()[0][0], $randomSplit->getTrainLabels()[0]);
-        $this->assertEquals($randomSplit->getTrainSamples()[1][0], $randomSplit->getTrainLabels()[1]);
+        $this->assertEquals(iterator_to_array($randomSplit->getTestTuples())[0][0], iterator_to_array($randomSplit->getTestTuples())[0][1][0]);
+        $this->assertEquals(iterator_to_array($randomSplit->getTrainTuples())[1][0], iterator_to_array($randomSplit->getTrainTuples())[1][1][0]);
     }
 }

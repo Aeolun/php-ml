@@ -9,25 +9,17 @@ use Phpml\Exception\InvalidArgumentException;
 
 abstract class Split
 {
-    /**
-     * @var array
-     */
-    protected $trainSamples = [];
+    protected $originalSet = null;
 
     /**
      * @var array
      */
-    protected $testSamples = [];
+    protected $trainTuples = [];
 
     /**
      * @var array
      */
-    protected $trainLabels = [];
-
-    /**
-     * @var array
-     */
-    protected $testLabels = [];
+    protected $testTuples = [];
 
     /**
      * @param Dataset $dataset
@@ -41,6 +33,9 @@ abstract class Split
         if (0 >= $testSize || 1 <= $testSize) {
             throw InvalidArgumentException::percentNotInRange('testSize');
         }
+
+        $this->originalSet = $dataset;
+
         $this->seedGenerator($seed);
 
         $this->splitDataset($dataset, $testSize);
@@ -51,33 +46,33 @@ abstract class Split
     /**
      * @return array
      */
-    public function getTrainSamples()
+    public function getTrainTuples() : \Generator
     {
-        return $this->trainSamples;
+        foreach($this->originalSet->getTuples() as $index => $tuple) {
+            if (isset($this->trainTuples[$index])) {
+                yield $tuple;
+            }
+        }
     }
 
     /**
      * @return array
      */
-    public function getTestSamples()
+    public function getTestTuples() : \Generator
     {
-        return $this->testSamples;
+        foreach($this->originalSet->getTuples() as $index => $tuple) {
+            if (isset($this->testTuples[$index])) {
+                yield $tuple;
+            }
+        }
     }
 
-    /**
-     * @return array
-     */
-    public function getTrainLabels()
-    {
-        return $this->trainLabels;
+    public function getTrainIndexes() {
+        return $this->trainTuples;
     }
 
-    /**
-     * @return array
-     */
-    public function getTestLabels()
-    {
-        return $this->testLabels;
+    public function getTestIndexes() {
+        return $this->testTuples;
     }
 
     /**

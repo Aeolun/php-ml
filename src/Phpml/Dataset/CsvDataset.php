@@ -6,8 +6,11 @@ namespace Phpml\Dataset;
 
 use Phpml\Exception\DatasetException;
 
-class CsvDataset extends ArrayDataset
+class CsvDataset implements Dataset
 {
+    protected $filePath;
+    protected $headingRow;
+
     /**
      * @param string $filepath
      * @param int    $features
@@ -15,24 +18,57 @@ class CsvDataset extends ArrayDataset
      *
      * @throws DatasetException
      */
-    public function __construct(string $filepath, int $features, bool $headingRow = true)
+    public function __construct(string $filepath, bool $headingRow = true)
     {
         if (!file_exists($filepath)) {
             throw DatasetException::missingFile(basename($filepath));
         }
 
-        if (false === $handle = fopen($filepath, 'rb')) {
-            throw DatasetException::cantOpenFile(basename($filepath));
+        $this->filePath = $filepath;
+        $this->headingRow = $headingRow;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTuples(): \Generator
+    {
+        if (false === $handle = fopen($this->filePath, 'rb')) {
+            throw DatasetException::cantOpenFile(basename($this->filePath));
         }
 
-        if ($headingRow) {
+        if ($this->headingRow) {
             fgets($handle);
         }
 
-        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-            $this->samples[] = array_slice($data, 0, $features);
-            $this->targets[] = $data[$features];
+        $features = null;
+        while (($data = fgetcsv($handle, 0, ',')) !== false) {
+            if ($features == null) {
+                $features = count($data)-1;
+            }
+            yield [
+                $data[$features],
+                array_slice($data, 0, $features)
+            ];
+
         }
         fclose($handle);
+    }
+
+    public function getCount(): int
+    {
+        $lineCount = 0;
+
+        if (false === $handle = fopen($this->filePath, 'rb')) {
+            throw DatasetException::cantOpenFile(basename($this->filePath));
+        }
+
+        while(!feof($handle)){
+            fgets($handle);
+
+            $lineCount++;
+        }
+
+        return $lineCount;
     }
 }

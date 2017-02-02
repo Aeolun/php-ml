@@ -7,12 +7,9 @@ namespace Phpml\Dataset;
 interface Dataset
 {
     /**
-     * @return array
+     * @return \Generator
      */
-    public function getSamples(): array;
+    public function getTuples(): \Generator;
 
-    /**
-     * @return array
-     */
-    public function getTargets(): array;
+    public function getCount(): int;
 }

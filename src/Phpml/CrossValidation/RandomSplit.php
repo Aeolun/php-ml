@@ -14,17 +14,32 @@ class RandomSplit extends Split
      */
     protected function splitDataset(Dataset $dataset, float $testSize)
     {
-        $samples = $dataset->getSamples();
-        $labels = $dataset->getTargets();
-        $datasetSize = count($samples);
-        $testCount = count($this->testSamples);
+        $datasetSize = $dataset->getCount();
 
-        for ($i = $datasetSize; $i > 0; --$i) {
-            $key = mt_rand(0, $datasetSize - 1);
-            $setName = (count($this->testSamples) - $testCount) / $datasetSize >= $testSize ? 'train' : 'test';
+        $testKeys = [];
+        $testKeyCount = 0;
+        $testKeyNeeded = ceil($datasetSize * $testSize);
 
-            $this->{$setName.'Samples'}[] = $samples[$key];
-            $this->{$setName.'Labels'}[] = $labels[$key];
+        $testKeysAvailable = range(0, $datasetSize - 1);
+
+
+        while($testKeyCount < $testKeyNeeded) {
+            $key = mt_rand(0, count($testKeysAvailable) - 1);
+
+            $testKeyCount++;
+            $testKeys[] = $testKeysAvailable[$key];
+
+            unset($testKeysAvailable[$key]);
+            $testKeysAvailable = array_values($testKeysAvailable);
+        }
+
+        $trainKeys = array_diff(range(0, $datasetSize - 1), $testKeys);
+
+        foreach($testKeys as $key) {
+            $this->testTuples[] = $key;
+        }
+        foreach($trainKeys as $key) {
+            $this->trainTuples[] = $key;
         }
     }
 }

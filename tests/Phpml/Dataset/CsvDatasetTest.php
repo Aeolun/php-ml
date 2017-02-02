@@ -13,26 +13,26 @@ class CsvDatasetTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowExceptionOnMissingFile()
     {
-        new CsvDataset('missingFile', 3);
+        new CsvDataset('missingFile', false);
     }
 
     public function testSampleCsvDatasetWithHeaderRow()
     {
         $filePath = dirname(__FILE__).'/Resources/dataset.csv';
 
-        $dataset = new CsvDataset($filePath, 2, true);
+        $dataset = new CsvDataset($filePath, true);
 
-        $this->assertCount(10, $dataset->getSamples());
-        $this->assertCount(10, $dataset->getTargets());
+        $this->assertCount(10, $dataset->getTuples());
+        $this->assertCount(10, $dataset->getTuples());
     }
 
     public function testSampleCsvDatasetWithoutHeaderRow()
     {
         $filePath = dirname(__FILE__).'/Resources/dataset.csv';
 
-        $dataset = new CsvDataset($filePath, 2, false);
+        $dataset = new CsvDataset($filePath, false);
 
-        $this->assertCount(11, $dataset->getSamples());
-        $this->assertCount(11, $dataset->getTargets());
+        $this->assertCount(11, $dataset->getTuples());
+        $this->assertCount(11, $dataset->getTuples());
     }
 }

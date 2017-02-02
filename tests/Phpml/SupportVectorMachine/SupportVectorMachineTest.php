@@ -12,8 +12,14 @@ class SupportVectorMachineTest extends \PHPUnit_Framework_TestCase
 {
     public function testTrainCSVCModelWithLinearKernel()
     {
-        $samples = [[1, 3], [1, 4], [2, 4], [3, 1], [4, 1], [4, 2]];
-        $labels = ['a', 'a', 'a', 'b', 'b', 'b'];
+        $tuples = [
+            [ 'a', [1, 3] ],
+            [ 'a', [1, 4] ],
+            [ 'a', [2, 4] ],
+            [ 'b', [3, 1] ],
+            [ 'b', [4, 1] ],
+            [ 'b', [4, 2] ]
+        ];
 
         $model =
             'svm_type c_svc
@@ -29,7 +35,7 @@ SV
 ';
 
         $svm = new SupportVectorMachine(Type::C_SVC, Kernel::LINEAR, 100.0);
-        $svm->train($samples, $labels);
+        $svm->train($tuples);
 
         $this->assertEquals($model, $svm->getModel());
     }

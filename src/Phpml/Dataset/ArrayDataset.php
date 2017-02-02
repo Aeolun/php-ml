@@ -34,19 +34,20 @@ class ArrayDataset implements Dataset
         $this->targets = $targets;
     }
 
-    /**
-     * @return array
-     */
-    public function getSamples(): array
+    public function getTuples(): \Generator
     {
-        return $this->samples;
+        foreach($this->samples as $index => $features) {
+            yield [
+                $this->targets[$index],
+                $features
+            ];
+        }
     }
 
-    /**
-     * @return array
-     */
-    public function getTargets(): array
+    public function getCount(): int
     {
-        return $this->targets;
+        return count($this->samples);
     }
+
+
 }

@@ -15,48 +15,40 @@ class StratifiedRandomSplit extends RandomSplit
      */
     protected function splitDataset(Dataset $dataset, float $testSize)
     {
-        $datasets = $this->splitByTarget($dataset);
+        $labels = [];
 
-        foreach ($datasets as $targetSet) {
-            parent::splitDataset($targetSet, $testSize);
+        foreach($dataset->getTuples() as $index => $tuple) {
+            $labels[$tuple[0]][] = $index;
         }
-    }
+        $labelKeys = array_keys($labels);
 
-    /**
-     * @param Dataset $dataset
-     *
-     * @return Dataset[]|array
-     */
-    private function splitByTarget(Dataset $dataset): array
-    {
-        $targets = $dataset->getTargets();
-        $samples = $dataset->getSamples();
+        $labelCount = count($labels);
+        for($j = 0; $j < $labelCount; $j++) {
+            $label = $labelKeys[$j];
+            $labelSize = count($labels[$label]);
 
-        $uniqueTargets = array_unique($targets);
-        $split = array_combine($uniqueTargets, array_fill(0, count($uniqueTargets), []));
+            $testKeys = [];
+            $testKeyCount = 0;
+            $testKeyNeeded = round($labelSize * $testSize);
 
-        foreach ($samples as $key => $sample) {
-            $split[$targets[$key]][] = $sample;
+            $testKeysAvailable = range(0, $labelSize - 1);
+            while($testKeyCount < $testKeyNeeded) {
+                $key = mt_rand(0, count($testKeysAvailable) - 1);
+
+                $testKeyCount++;
+                $testKeys[] = $testKeysAvailable[$key];
+                unset($testKeysAvailable[$key]);
+                $testKeysAvailable = array_values($testKeysAvailable);
+            }
+
+            $trainKeys = array_diff($labels[$label], $testKeys);
+
+            foreach($testKeys as $key) {
+                $this->testTuples[] = $key;
+            }
+            foreach($trainKeys as $key) {
+                $this->trainTuples[] = $key;
+            }
         }
-
-        $datasets = $this->createDatasets($uniqueTargets, $split);
-
-        return $datasets;
-    }
-
-    /**
-     * @param array $uniqueTargets
-     * @param array $split
-     *
-     * @return array
-     */
-    private function createDatasets(array $uniqueTargets, array $split): array
-    {
-        $datasets = [];
-        foreach ($uniqueTargets as $target) {
-            $datasets[$target] = new ArrayDataset($split[$target], array_fill(0, count($split[$target]), $target));
-        }
-
-        return $datasets;
     }
 }
