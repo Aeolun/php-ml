@@ -125,14 +125,14 @@ class SupportVectorMachine
     }
 
     /**
-     * @param array $samples
-     * @param array $labels
+     * @param array $tuples
      */
-    public function train(array $samples, array $labels)
+    public function train(array $tuples)
     {
-        $this->labels = $labels;
-        $trainingSet = DataTransformer::trainingSet($samples, $labels, in_array($this->type, [Type::EPSILON_SVR, Type::NU_SVR]));
-        file_put_contents($trainingSetFileName = $this->varPath.uniqid('phpml', true), $trainingSet);
+        $trainingSetFileName = $this->varPath.uniqid('phpml', true);
+        $this->labels = DataTransformer::outputTrainingSet($trainingSetFileName, $tuples, in_array($this->type, [Type::EPSILON_SVR, Type::NU_SVR]));
+
+        echo file_get_contents($trainingSetFileName);
         $modelFileName = $trainingSetFileName.'-model';
 
         $command = $this->buildTrainCommand($trainingSetFileName, $modelFileName);
@@ -158,10 +158,11 @@ class SupportVectorMachine
      *
      * @return array
      */
-    public function predict(array $samples)
+    public function predict(array $tuples)
     {
-        $testSet = DataTransformer::testSet($samples);
-        file_put_contents($testSetFileName = $this->varPath.uniqid('phpml', true), $testSet);
+        $testSetFileName = $this->varPath.uniqid('phpml', true);
+
+        DataTransformer::outputTestSet($testSetFileName, $tuples);
         file_put_contents($modelFileName = $testSetFileName.'-model', $this->model);
         $outputFileName = $testSetFileName.'-output';
 
@@ -181,7 +182,7 @@ class SupportVectorMachine
             $predictions = explode(PHP_EOL, trim($predictions));
         }
 
-        if (!is_array($samples[0])) {
+        if (!is_array($tuples[0])) {
             return $predictions[0];
         }
 

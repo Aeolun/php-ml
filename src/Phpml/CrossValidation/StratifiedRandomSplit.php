@@ -15,17 +15,17 @@ class StratifiedRandomSplit extends RandomSplit
      */
     protected function splitDataset(Dataset $dataset, float $testSize)
     {
-        $labels = [];
+        $labelTuples = [];
 
         foreach($dataset->getTuples() as $index => $tuple) {
-            $labels[$tuple[0]][] = $index;
+            $labelTuples[$tuple[0]][] = $index;
         }
-        $labelKeys = array_keys($labels);
+        $labelKeys = array_keys($labelTuples);
 
-        $labelCount = count($labels);
+        $labelCount = count($labelKeys);
         for($j = 0; $j < $labelCount; $j++) {
             $label = $labelKeys[$j];
-            $labelSize = count($labels[$label]);
+            $labelSize = count($labelTuples[$label]);
 
             $testKeys = [];
             $testKeyCount = 0;
@@ -36,18 +36,18 @@ class StratifiedRandomSplit extends RandomSplit
                 $key = mt_rand(0, count($testKeysAvailable) - 1);
 
                 $testKeyCount++;
-                $testKeys[] = $testKeysAvailable[$key];
+                $testKeys[] = $labelTuples[$label][$testKeysAvailable[$key]];
                 unset($testKeysAvailable[$key]);
                 $testKeysAvailable = array_values($testKeysAvailable);
             }
 
-            $trainKeys = array_diff($labels[$label], $testKeys);
+            $trainKeys = array_diff($labelTuples[$label], $testKeys);
 
             foreach($testKeys as $key) {
-                $this->testTuples[] = $key;
+                $this->testTuples[$key] = true;
             }
             foreach($trainKeys as $key) {
-                $this->trainTuples[] = $key;
+                $this->trainTuples[$key] = true;
             }
         }
     }

@@ -13,18 +13,21 @@ class DataTransformer
      *
      * @return string
      */
-    public static function trainingSet(array $samples, array $labels, bool $targets = false): string
+    public static function outputTrainingSet($outputFile, $tuples, $numericLabels = false)
     {
-        $set = '';
-        if (!$targets) {
-            $numericLabels = self::numericLabels($labels);
+        file_put_contents($outputFile, '');
+
+        $numeric = [];
+        foreach ($tuples as $data) {
+            $label = $data[0];
+            if ( ! $numericLabels) {
+                $label = self::numericLabel($label, $numeric);
+            }
+
+            file_put_contents($outputFile, sprintf('%s %s %s', $label, self::sampleRow($data[1]), PHP_EOL), FILE_APPEND);
         }
 
-        foreach ($labels as $index => $label) {
-            $set .= sprintf('%s %s %s', ($targets ? $label : $numericLabels[$label]), self::sampleRow($samples[$index]), PHP_EOL);
-        }
-
-        return $set;
+        return $numeric;
     }
 
     /**
@@ -32,18 +35,15 @@ class DataTransformer
      *
      * @return string
      */
-    public static function testSet(array $samples): string
+    public static function outputTestSet($outputFile, array $samples)
     {
-        if (!is_array($samples[0])) {
-            $samples = [$samples];
-        }
+        file_put_contents($outputFile, '');
 
-        $set = '';
-        foreach ($samples as $sample) {
-            $set .= sprintf('0 %s %s', self::sampleRow($sample), PHP_EOL);
-        }
+        foreach ($samples as $data) {
+            $label = 0;
 
-        return $set;
+            file_put_contents($outputFile, sprintf('%s %s %s', $label, self::sampleRow($data), PHP_EOL), FILE_APPEND);
+        }
     }
 
     /**
@@ -54,11 +54,10 @@ class DataTransformer
      */
     public static function predictions(string $rawPredictions, array $labels): array
     {
-        $numericLabels = self::numericLabels($labels);
         $results = [];
         foreach (explode(PHP_EOL, $rawPredictions) as $result) {
             if (strlen($result) > 0) {
-                $results[] = array_search($result, $numericLabels);
+                $results[] = array_search($result, $labels);
             }
         }
 
@@ -70,18 +69,15 @@ class DataTransformer
      *
      * @return array
      */
-    public static function numericLabels(array $labels): array
+    public static function numericLabel($label, array &$labels): int
     {
-        $numericLabels = [];
-        foreach ($labels as $label) {
-            if (isset($numericLabels[$label])) {
-                continue;
-            }
-
-            $numericLabels[$label] = count($numericLabels);
+        if (isset($labels[$label])) {
+            return $labels[$label];
         }
 
-        return $numericLabels;
+        $labels[$label] = count($labels);
+
+        return $labels[$label];
     }
 
     /**

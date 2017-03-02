@@ -18,13 +18,8 @@ class StratifiedRandomSplitTest extends \PHPUnit_Framework_TestCase
 
         $split = new StratifiedRandomSplit($dataset, 0.5);
 
-        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestLabels(), 'a'));
-        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestLabels(), 'b'));
-
-        $split = new StratifiedRandomSplit($dataset, 0.25);
-
-        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestLabels(), 'a'));
-        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestLabels(), 'b'));
+        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestTuples(), 'a'));
+        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestTuples(), 'b'));
     }
 
     public function testDatasetStratifiedRandomSplitWithEvenDistributionAndNumericTargets()
@@ -36,13 +31,13 @@ class StratifiedRandomSplitTest extends \PHPUnit_Framework_TestCase
 
         $split = new StratifiedRandomSplit($dataset, 0.5);
 
-        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestLabels(), 1));
-        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestLabels(), 2));
+        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestTuples(), 1));
+        $this->assertEquals(2, $this->countSamplesByTarget($split->getTestTuples(), 2));
 
         $split = new StratifiedRandomSplit($dataset, 0.25);
 
-        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestLabels(), 1));
-        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestLabels(), 2));
+        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestTuples(), 1));
+        $this->assertEquals(1, $this->countSamplesByTarget($split->getTestTuples(), 2));
     }
 
     /**
@@ -55,7 +50,7 @@ class StratifiedRandomSplitTest extends \PHPUnit_Framework_TestCase
     {
         $count = 0;
         foreach ($splitTargets as $target) {
-            if ($target === $countTarget) {
+            if ($target[0] === $countTarget) {
                 ++$count;
             }
         }

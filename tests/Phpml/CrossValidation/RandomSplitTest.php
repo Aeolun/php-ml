@@ -67,10 +67,15 @@ class RandomSplitTest extends \PHPUnit_Framework_TestCase
         );
 
         $randomSplit1 = new RandomSplit($dataset, 0.5, 4321);
-        $randomSplit2 = new RandomSplit($dataset, 0.5, 1234);
+        $testTuples = iterator_to_array($randomSplit1->getTestTuples());
+        $trainTuples = iterator_to_array($randomSplit1->getTrainTuples());
 
-        $this->assertNotEquals($randomSplit1->getTestTuples(), $randomSplit2->getTestTuples());
-        $this->assertNotEquals($randomSplit1->getTrainTuples(), $randomSplit2->getTrainTuples());
+        $randomSplit2 = new RandomSplit($dataset, 0.5, 1234);
+        $testTuples2 = iterator_to_array($randomSplit2->getTestTuples());
+        $trainTuples2 = iterator_to_array($randomSplit2->getTrainTuples());
+
+        $this->assertNotEquals($testTuples, $testTuples2);
+        $this->assertNotEquals($trainTuples, $trainTuples2);
     }
 
     public function testRandomSplitCorrectSampleAndLabelPosition()

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace tests\SupportVectorMachine;
 
+use Phpml\Dataset\ArrayDataset;
 use Phpml\SupportVectorMachine\Kernel;
 use Phpml\SupportVectorMachine\SupportVectorMachine;
 use Phpml\SupportVectorMachine\Type;
@@ -42,11 +43,17 @@ SV
 
     public function testPredictSampleWithLinearKernel()
     {
-        $samples = [[1, 3], [1, 4], [2, 4], [3, 1], [4, 1], [4, 2]];
-        $labels = ['a', 'a', 'a', 'b', 'b', 'b'];
+        $tuples = [
+            [ 'a', [1, 3] ],
+            [ 'a', [1, 4] ],
+            [ 'a', [2, 4] ],
+            [ 'b', [3, 1] ],
+            [ 'b', [4, 1] ],
+            [ 'b', [4, 2] ]
+        ];
 
         $svm = new SupportVectorMachine(Type::C_SVC, Kernel::LINEAR, 100.0);
-        $svm->train($samples, $labels);
+        $svm->train($tuples);
 
         $predictions = $svm->predict([
             [3, 2],
@@ -61,19 +68,20 @@ SV
 
     public function testPredictSampleFromMultipleClassWithRbfKernel()
     {
-        $samples = [
-            [1, 3], [1, 4], [1, 4],
-            [3, 1], [4, 1], [4, 2],
-            [-3, -1], [-4, -1], [-4, -2],
-        ];
-        $labels = [
-            'a', 'a', 'a',
-            'b', 'b', 'b',
-            'c', 'c', 'c',
+        $tuples = [
+            [ 'a', [1, 3] ],
+            [ 'a', [1, 4] ],
+            [ 'a', [1, 4] ],
+            [ 'b', [3, 1] ],
+            [ 'b', [4, 1] ],
+            [ 'b', [4, 2] ],
+            [ 'c', [-3, -1] ],
+            [ 'c', [-4, -1] ],
+            [ 'c', [-4, -2] ],
         ];
 
         $svm = new SupportVectorMachine(Type::C_SVC, Kernel::RBF, 100.0);
-        $svm->train($samples, $labels);
+        $svm->train($tuples);
 
         $predictions = $svm->predict([
             [1, 5],

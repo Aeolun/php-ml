@@ -26,6 +26,7 @@ class RandomSplit extends Split
         while($testKeyCount < $testKeyNeeded) {
             $key = mt_rand(0, count($testKeysAvailable) - 1);
 
+
             $testKeyCount++;
             $testKeys[] = $testKeysAvailable[$key];
 
@@ -36,10 +37,10 @@ class RandomSplit extends Split
         $trainKeys = array_diff(range(0, $datasetSize - 1), $testKeys);
 
         foreach($testKeys as $key) {
-            $this->testTuples[] = $key;
+            $this->testTuples[$key] = true;
         }
         foreach($trainKeys as $key) {
-            $this->trainTuples[] = $key;
+            $this->trainTuples[$key] = true;
         }
     }
 }

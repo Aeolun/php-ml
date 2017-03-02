@@ -20,7 +20,7 @@ class DataTransformerTest extends \PHPUnit_Framework_TestCase
             '1 1:4 2:5 '.PHP_EOL
         ;
 
-        $this->assertEquals($trainingSet, DataTransformer::trainingSet($samples, $labels));
+        $this->assertEquals($trainingSet, DataTransformer::outputTrainingSet($samples, $labels));
     }
 
     public function testTransformSamplesToTestSet()
